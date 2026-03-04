@@ -1,0 +1,40 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Users collection
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // News articles collection
+    match /news/{articleId} {
+      allow read: if true; // Public read
+      allow write: if request.auth != null && 
+                     (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+                      get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'reporter');
+    }
+    
+    // Citizen journalist applications
+    match /journalist_applications/{applicationId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null;
+      allow update: if request.auth != null && 
+                      get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    // E-Books collection
+    match /ebooks/{ebookId} {
+      allow read: if true; // Public read
+      allow write: if request.auth != null && 
+                     get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    // Buzz videos collection
+    match /buzz/{videoId} {
+      allow read: if true; // Public read
+      allow write: if request.auth != null;
+    }
+  }
+}

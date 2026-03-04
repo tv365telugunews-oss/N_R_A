@@ -1,0 +1,57 @@
+╔══════════════════════════════════════════════════════════════╗
+║          🚪 DOUBLE BACK PRESS TO EXIT - USER GUIDE          ║
+╚══════════════════════════════════════════════════════════════╝
+
+📱 HOW TO EXIT THE NEWS ROBO APP:
+
+┌──────────────────────────────────────────────────────────────┐
+│  STEP 1: Press the Android Back Button (◀) once             │
+│  ────────────────────────────────────────────────────────────│
+│  Result: You'll see a message at the bottom:                │
+│  "Press back again to exit"                                  │
+└──────────────────────────────────────────────────────────────┘
+
+┌──────────────────────────────────────────────────────────────┐
+│  STEP 2: Press the Back Button (◀) again within 2 seconds   │
+│  ────────────────────────────────────────────────────────────│
+│  Result: The app will close completely                       │
+└──────────────────────────────────────────────────────────────┘
+
+⏱️  TIMER RESET:
+   If you wait more than 2 seconds after the first press,
+   the timer resets. You'll need to press back twice again.
+
+🧭 NAVIGATION:
+   • If you're on a sub-page (not home), back button will
+     navigate to the previous page first
+   • Only when you're at the root page will the exit
+     confirmation trigger
+
+✨ BENEFITS:
+   ✓ Prevents accidental exits
+   ✓ Standard Android behavior
+   ✓ Clear visual feedback
+   ✓ Non-intrusive design
+
+═══════════════════════════════════════════════════════════════
+
+📋 FOR DEVELOPERS:
+
+🔧 Implementation Details:
+   • Hook: /src/app/hooks/useBackButtonExit.tsx
+   • Package: @capacitor/app (v8.0.1)
+   • Integration: /src/app/App.tsx
+   • Exit Delay: 2000ms (2 seconds)
+
+🧪 Testing on Android:
+   1. npm run android:build
+   2. Open app on device/emulator
+   3. Press back button once → See toast
+   4. Press back again → App exits
+
+⚙️  Customization:
+   • Change delay: Edit EXIT_DELAY in useBackButtonExit.tsx
+   • Change message: Edit toast.info() text
+   • Position: Modify toast position prop
+
+═══════════════════════════════════════════════════════════════

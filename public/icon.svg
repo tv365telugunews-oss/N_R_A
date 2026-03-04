@@ -1,0 +1,15 @@
+<svg width="192" height="192" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="192" height="192" fill="#D32F2F"/>
+  
+  <!-- NEWS text in white box -->
+  <rect x="20" y="50" width="70" height="40" fill="white" rx="4"/>
+  <text x="55" y="78" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#D32F2F" text-anchor="middle">NEWS</text>
+  
+  <!-- ROBO text -->
+  <text x="140" y="78" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#2196F3" text-anchor="middle">ROBO</text>
+  
+  <!-- Decorative element -->
+  <circle cx="96" cy="120" r="30" fill="#FFC107" opacity="0.9"/>
+  <path d="M 96 100 L 111 120 L 96 140 L 81 120 Z" fill="#212121"/>
+</svg>

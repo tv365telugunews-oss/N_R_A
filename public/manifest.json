@@ -1,0 +1,50 @@
+{
+  "name": "NEWS ROBO - Hyperlocal Multilingual News",
+  "short_name": "NEWS ROBO",
+  "description": "India's premier hyperlocal news app delivering breaking news in 10+ regional languages with village-level precision",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#212121",
+  "theme_color": "#D32F2F",
+  "orientation": "portrait",
+  "scope": "/",
+  "lang": "en-IN",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": [
+    "news",
+    "lifestyle",
+    "social"
+  ],
+  "shortcuts": [
+    {
+      "name": "Breaking News",
+      "url": "/?category=breaking",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Local News",
+      "url": "/?category=local",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}
