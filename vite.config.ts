@@ -9,11 +9,14 @@ export default defineConfig({
     // Tailwind is not being actively used – do not remove them
     react(),
     tailwindcss(),
-    // Custom plugin to ignore markdown files
+    // Custom plugin to ignore markdown files and Figma assets
     {
       name: 'ignore-markdown',
       resolveId(id) {
         if (id.endsWith('.md')) {
+          return { id, external: true };
+        }
+        if (id.startsWith('figma:')) {
           return { id, external: true };
         }
       },
@@ -38,6 +41,7 @@ export default defineConfig({
     assetsInlineLimit: 4096, // 4kb - inline small assets
     cssCodeSplit: true,
     rollupOptions: {
+      external: ['figma:asset/60cc8bb3430c288a3c24a1e0b39148e381fa1981.png'],
       output: {
         manualChunks: undefined,
         // Consistent asset naming for Android
