@@ -1,15 +1,86 @@
-<svg width="192" height="192" xmlns="http://www.w3.org/2000/svg">
-  <!-- Background -->
-  <rect width="192" height="192" fill="#D32F2F"/>
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Red circular background -->
+  <circle cx="256" cy="256" r="250" fill="#E51C23"/>
   
-  <!-- NEWS text in white box -->
-  <rect x="20" y="50" width="70" height="40" fill="white" rx="4"/>
-  <text x="55" y="78" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#D32F2F" text-anchor="middle">NEWS</text>
+  <!-- Shadow under robot -->
+  <ellipse cx="256" cy="420" rx="128" ry="26" fill="#000000" opacity="0.2"/>
   
-  <!-- ROBO text -->
-  <text x="140" y="78" font-family="Arial, sans-serif" font-size="20" font-weight="bold" fill="#2196F3" text-anchor="middle">ROBO</text>
+  <!-- Robot Body - Main torso -->
+  <rect x="166" y="242" width="180" height="128" rx="20" fill="#6B7280" stroke="#4B5563" stroke-width="5"/>
   
-  <!-- Decorative element -->
-  <circle cx="96" cy="120" r="30" fill="#FFC107" opacity="0.9"/>
-  <path d="M 96 100 L 111 120 L 96 140 L 81 120 Z" fill="#212121"/>
+  <!-- Robot Head -->
+  <rect x="184" y="102" width="144" height="128" rx="20" fill="#6B7280" stroke="#4B5563" stroke-width="5"/>
+  
+  <!-- Antenna -->
+  <line x1="256" y1="102" x2="256" y2="64" stroke="#4B5563" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="256" cy="56" r="13" fill="#FFC107"/>
+  
+  <!-- Robot Face - Eyes -->
+  <ellipse cx="217" cy="153" rx="26" ry="31" fill="#FFFFFF"/>
+  <ellipse cx="294" cy="153" rx="26" ry="31" fill="#FFFFFF"/>
+  <circle cx="217" cy="158" r="13" fill="#212121"/>
+  <circle cx="294" cy="158" r="13" fill="#212121"/>
+  
+  <!-- Eye highlights -->
+  <circle cx="222" cy="151" r="5" fill="#FFFFFF"/>
+  <circle cx="299" cy="151" r="5" fill="#FFFFFF"/>
+  
+  <!-- Mouth area - Robot grill -->
+  <rect x="217" y="192" width="77" height="21" rx="10" fill="#212121"/>
+  <line x1="235" y1="192" x2="235" y2="213" stroke="#4B5563" stroke-width="3"/>
+  <line x1="256" y1="192" x2="256" y2="213" stroke="#4B5563" stroke-width="3"/>
+  <line x1="277" y1="192" x2="277" y2="213" stroke="#4B5563" stroke-width="3"/>
+  
+  <!-- Robot Arms -->
+  <!-- Left arm -->
+  <rect x="128" y="242" width="38" height="90" rx="18" fill="#9CA3AF" stroke="#4B5563" stroke-width="5"/>
+  <circle cx="147" cy="242" r="15" fill="#6B7280" stroke="#4B5563" stroke-width="5"/>
+  
+  <!-- Right arm -->
+  <rect x="346" y="242" width="38" height="90" rx="18" fill="#9CA3AF" stroke="#4B5563" stroke-width="5"/>
+  <circle cx="365" cy="242" r="15" fill="#6B7280" stroke="#4B5563" stroke-width="5"/>
+  
+  <!-- Chest panel -->
+  <rect x="199" y="268" width="113" height="77" rx="10" fill="#9CA3AF"/>
+  <circle cx="230" cy="294" r="8" fill="#4ADE80"/>
+  <circle cx="256" cy="294" r="8" fill="#FFC107"/>
+  <circle cx="282" cy="294" r="8" fill="#EF4444"/>
+  
+  <!-- Body details -->
+  <line x1="256" y1="320" x2="256" y2="345" stroke="#4B5563" stroke-width="5"/>
+  
+  <!-- Newspaper held by robot -->
+  <g transform="translate(179, 294)">
+    <!-- Newspaper base -->
+    <rect x="0" y="0" width="154" height="115" rx="5" fill="#FFFFFF" stroke="#212121" stroke-width="4"/>
+    
+    <!-- Newspaper fold -->
+    <line x1="77" y1="0" x2="77" y2="115" stroke="#D1D5DB" stroke-width="3"/>
+    
+    <!-- Left page - Image -->
+    <rect x="8" y="8" width="61" height="46" fill="#EF4444"/>
+    <text x="38" y="36" font-family="Arial, sans-serif" font-size="26" font-weight="bold" fill="#FFFFFF" text-anchor="middle">N</text>
+    
+    <!-- Right page - "NR" -->
+    <text x="108" y="36" font-family="Arial, sans-serif" font-size="31" font-weight="bold" fill="#E51C23" text-anchor="middle">NR</text>
+    
+    <!-- Text lines - left page -->
+    <line x1="8" y1="61" x2="69" y2="61" stroke="#9CA3AF" stroke-width="2"/>
+    <line x1="8" y1="72" x2="69" y2="72" stroke="#9CA3AF" stroke-width="2"/>
+    <line x1="8" y1="82" x2="61" y2="82" stroke="#9CA3AF" stroke-width="2"/>
+    <line x1="8" y1="92" x2="69" y2="92" stroke="#9CA3AF" stroke-width="2"/>
+    <line x1="8" y1="102" x2="51" y2="102" stroke="#9CA3AF" stroke-width="2"/>
+    
+    <!-- Text lines - right page -->
+    <line x1="85" y1="51" x2="146" y2="51" stroke="#9CA3AF" stroke-width="2"/>
+    <line x1="85" y1="61" x2="146" y2="61" stroke="#9CA3AF" stroke-width="2"/>
+    <line x1="85" y1="72" x2="138" y2="72" stroke="#9CA3AF" stroke-width="2"/>
+    <line x1="85" y1="82" x2="146" y2="82" stroke="#9CA3AF" stroke-width="2"/>
+    <line x1="85" y1="92" x2="146" y2="92" stroke="#9CA3AF" stroke-width="2"/>
+    <line x1="85" y1="102" x2="128" y2="102" stroke="#9CA3AF" stroke-width="2"/>
+  </g>
+  
+  <!-- Robot hands holding newspaper -->
+  <circle cx="166" cy="332" r="21" fill="#9CA3AF" stroke="#4B5563" stroke-width="5"/>
+  <circle cx="346" cy="332" r="21" fill="#9CA3AF" stroke="#4B5563" stroke-width="5"/>
 </svg>

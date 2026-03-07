@@ -189,8 +189,8 @@ export function AnalyticsReports() {
                 }} 
               />
               <Legend />
-              <Line type="monotone" dataKey="views" stroke="#D32F2F" strokeWidth={3} name="Page Views" />
-              <Line type="monotone" dataKey="users" stroke="#1976D2" strokeWidth={3} name="Active Users" />
+              <Line key="views-line" type="monotone" dataKey="views" stroke="#D32F2F" strokeWidth={3} name="Page Views" />
+              <Line key="users-line" type="monotone" dataKey="users" stroke="#1976D2" strokeWidth={3} name="Active Users" />
             </LineChart>
           </ResponsiveContainer>
         </Card>

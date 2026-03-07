@@ -196,115 +196,121 @@ export function ComprehensiveUploadModal({ isOpen, onClose }: ComprehensiveUploa
   };
 
   return createPortal(
-    <div className="fixed inset-0 z-[300] bg-black/80 flex items-center justify-center p-4 pointer-events-auto">
+    <div className="fixed inset-0 z-[300] bg-black/80 flex items-center justify-center p-2 md:p-4 pointer-events-auto">
       {/* Backdrop */}
       <div className="absolute inset-0 pointer-events-auto" onClick={handleClose} />
 
       {/* Upload Panel */}
-      <div className="relative w-full max-w-5xl bg-white dark:bg-[#1E1E1E] rounded-2xl shadow-2xl max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-300 pointer-events-auto">
+      <div className="relative w-full max-w-5xl bg-white dark:bg-[#1E1E1E] rounded-xl md:rounded-2xl shadow-2xl max-h-[95vh] md:max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-300 pointer-events-auto">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b dark:border-gray-700">
+        <div className="flex items-center justify-between p-4 md:p-6 border-b dark:border-gray-700">
           <div>
-            <h2 className="text-2xl font-bold text-[#212121] dark:text-white">
+            <h2 className="text-xl md:text-2xl font-bold text-[#212121] dark:text-white">
               Upload Content
             </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+            <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400 mt-1">
               Create and publish content with multiple format options
             </p>
           </div>
           <button
             onClick={handleClose}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors flex-shrink-0"
           >
-            <X className="h-6 w-6 text-gray-500" />
+            <X className="h-5 w-5 md:h-6 md:w-6 text-gray-500" />
           </button>
         </div>
 
         {/* Content Type Selection (Step 0) */}
         {currentStep === 1 && (
-          <div className="p-6 border-b dark:border-gray-700">
-            <h3 className="text-lg font-semibold mb-4 text-[#212121] dark:text-white">
+          <div className="p-4 md:p-6 border-b dark:border-gray-700 max-h-[60vh] overflow-y-auto">
+            <h3 className="text-base md:text-lg font-semibold mb-3 md:mb-4 text-[#212121] dark:text-white">
               Select Content Type
             </h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">{/* Changed from md:grid-cols-5 to md:grid-cols-3 */}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">{/* Make scrollable and adjust gaps */}
               <button
                 onClick={() => handleContentTypeSelect('standard')}
-                className={`p-4 rounded-lg border-2 transition-all hover:scale-105 ${
+                className={`p-3 md:p-4 rounded-lg border-2 transition-all hover:scale-105 ${
                   contentType === 'standard'
                     ? 'border-[#D32F2F] bg-red-50 dark:bg-red-900/20'
                     : 'border-gray-300 dark:border-gray-600 hover:border-gray-400'
                 }`}
               >
-                <ImageIcon className="h-8 w-8 mx-auto mb-2 text-[#D32F2F]" />
-                <p className="text-sm font-medium text-center">Standard</p>
-                <p className="text-xs text-gray-500 mt-1 text-center">Image/Video + Text</p>
+                <ImageIcon className="h-6 w-6 md:h-8 md:w-8 mx-auto mb-2 text-[#D32F2F]" />
+                <p className="text-xs md:text-sm font-medium text-center">Standard</p>
+                <p className="text-[10px] md:text-xs text-gray-500 mt-1 text-center">Image/Video + Text</p>
               </button>
 
               <button
                 onClick={() => handleContentTypeSelect('video-text')}
-                className={`p-4 rounded-lg border-2 transition-all hover:scale-105 ${
+                className={`p-3 md:p-4 rounded-lg border-2 transition-all hover:scale-105 ${
                   contentType === 'video-text'
                     ? 'border-[#D32F2F] bg-red-50 dark:bg-red-900/20'
                     : 'border-gray-300 dark:border-gray-600 hover:border-gray-400'
                 }`}
               >
-                <Video className="h-8 w-8 mx-auto mb-2 text-[#D32F2F]" />
-                <p className="text-sm font-medium text-center">Video + Text</p>
-                <p className="text-xs text-gray-500 mt-1 text-center">Video with text</p>
+                <Video className="h-6 w-6 md:h-8 md:w-8 mx-auto mb-2 text-[#D32F2F]" />
+                <p className="text-xs md:text-sm font-medium text-center">Video + Text</p>
+                <p className="text-[10px] md:text-xs text-gray-500 mt-1 text-center">Video with text</p>
               </button>
 
               <button
                 onClick={() => handleContentTypeSelect('full-video')}
-                className={`p-4 rounded-lg border-2 transition-all hover:scale-105 ${
+                className={`p-3 md:p-4 rounded-lg border-2 transition-all hover:scale-105 ${
                   contentType === 'full-video'
                     ? 'border-[#D32F2F] bg-red-50 dark:bg-red-900/20'
                     : 'border-gray-300 dark:border-gray-600 hover:border-gray-400'
                 }`}
               >
-                <Play className="h-8 w-8 mx-auto mb-2 text-[#D32F2F]" />
-                <p className="text-sm font-medium text-center">Full Video</p>
-                <p className="text-xs text-gray-500 mt-1 text-center">100% Video</p>
+                <Play className="h-6 w-6 md:h-8 md:w-8 mx-auto mb-2 text-[#D32F2F]" />
+                <p className="text-xs md:text-sm font-medium text-center">Full Video</p>
+                <p className="text-[10px] md:text-xs text-gray-500 mt-1 text-center">100% Video</p>
               </button>
 
               <button
                 onClick={() => handleContentTypeSelect('photo-gallery')}
-                className={`p-4 rounded-lg border-2 transition-all hover:scale-105 ${
+                className={`p-3 md:p-4 rounded-lg border-2 transition-all hover:scale-105 ${
                   contentType === 'photo-gallery'
                     ? 'border-[#D32F2F] bg-red-50 dark:bg-red-900/20'
                     : 'border-gray-300 dark:border-gray-600 hover:border-gray-400'
                 }`}
               >
-                <Images className="h-8 w-8 mx-auto mb-2 text-[#D32F2F]" />
-                <p className="text-sm font-medium text-center">Photo Gallery</p>
-                <p className="text-xs text-gray-500 mt-1 text-center">Up to 6 photos</p>
+                <Images className="h-6 w-6 md:h-8 md:w-8 mx-auto mb-2 text-[#D32F2F]" />
+                <p className="text-xs md:text-sm font-medium text-center">Photo Gallery</p>
+                <p className="text-[10px] md:text-xs text-gray-500 mt-1 text-center">Up to 6 photos</p>
               </button>
 
               <button
                 onClick={() => handleContentTypeSelect('ad')}
-                className={`p-4 rounded-lg border-2 transition-all hover:scale-105 ${
+                className={`p-3 md:p-4 rounded-lg border-2 transition-all hover:scale-105 ${
                   contentType === 'ad'
                     ? 'border-[#D32F2F] bg-red-50 dark:bg-red-900/20'
                     : 'border-gray-300 dark:border-gray-600 hover:border-gray-400'
                 }`}
               >
-                <DollarSign className="h-8 w-8 mx-auto mb-2 text-[#FFC107]" />
-                <p className="text-sm font-medium text-center">Sponsored Ad</p>
-                <p className="text-xs text-gray-500 mt-1 text-center">Full-screen ad</p>
+                <DollarSign className="h-6 w-6 md:h-8 md:w-8 mx-auto mb-2 text-[#FFC107]" />
+                <p className="text-xs md:text-sm font-medium text-center">Sponsored Ad</p>
+                <p className="text-[10px] md:text-xs text-gray-500 mt-1 text-center">Full-screen ad</p>
               </button>
 
               <button
                 onClick={() => handleContentTypeSelect('ebook')}
-                className={`p-4 rounded-lg border-2 transition-all hover:scale-105 ${
+                className={`p-3 md:p-4 rounded-lg border-2 transition-all hover:scale-105 ${
                   contentType === 'ebook'
                     ? 'border-[#D32F2F] bg-red-50 dark:bg-red-900/20'
                     : 'border-gray-300 dark:border-gray-600 hover:border-gray-400'
                 }`}
               >
-                <BookOpen className="h-8 w-8 mx-auto mb-2 text-[#D32F2F]" />
-                <p className="text-sm font-medium text-center">E-book</p>
-                <p className="text-xs text-gray-500 mt-1 text-center">Digital e-book</p>
+                <BookOpen className="h-6 w-6 md:h-8 md:w-8 mx-auto mb-2 text-[#D32F2F]" />
+                <p className="text-xs md:text-sm font-medium text-center">E-book</p>
+                <p className="text-[10px] md:text-xs text-gray-500 mt-1 text-center">Digital e-book</p>
               </button>
             </div>
+            
+            {/* Scroll hint for mobile */}
+            <div className="md:hidden text-center mt-3 text-xs text-gray-500 animate-pulse">
+              ↓ Scroll down to see all 6 options ↓
+            </div>
+
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-4 p-3 bg-gray-100 dark:bg-gray-800 rounded-lg">
               <strong>{getContentTypeLabel()}:</strong> {getContentTypeDescription()}
             </p>

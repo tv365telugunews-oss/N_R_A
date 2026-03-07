@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>News Robo Logo - SVG to PNG Converter</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #E51C23;
+            text-align: center;
+        }
+        .logo-preview {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin: 30px 0;
+        }
+        .preview-item {
+            text-align: center;
+        }
+        .logo-display {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: inline-block;
+        }
+        .logo-display.dark {
+            background: #212121;
+        }
+        .size-label {
+            margin-top: 10px;
+            font-weight: bold;
+            color: #666;
+        }
+        button {
+            background: #E51C23;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #C41C1C;
+        }
+        .instructions {
+            background: #FFF3CD;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #FFC107;
+        }
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 NEWS ROBO Logo - Robot with Newspaper</h1>
+        
+        <div class="instructions">
+            <h3>📋 Instructions:</h3>
+            <ol>
+                <li>The robot logo SVG has been created and saved to <code>/public/logo.svg</code></li>
+                <li>Click the buttons below to download PNG versions for Android assets</li>
+                <li>Place the downloaded PNGs in the appropriate Android folders</li>
+                <li>The logo will automatically be used throughout the app</li>
+            </ol>
+        </div>
+
+        <h2 style="text-align: center;">Logo Preview</h2>
+        
+        <div class="logo-preview">
+            <div class="preview-item">
+                <div class="logo-display">
+                    <img src="/logo.svg" width="200" height="200" alt="Logo" id="logo200">
+                </div>
+                <div class="size-label">200×200px (Standard)</div>
+                <button onclick="downloadPNG(200, 'logo-200.png')">Download PNG</button>
+            </div>
+            
+            <div class="preview-item">
+                <div class="logo-display dark">
+                    <img src="/logo.svg" width="200" height="200" alt="Logo">
+                </div>
+                <div class="size-label">200×200px (Dark BG)</div>
+            </div>
+        </div>
+
+        <div class="logo-preview">
+            <div class="preview-item">
+                <div class="logo-display">
+                    <img src="/logo.svg" width="512" height="512" alt="Logo" id="logo512">
+                </div>
+                <div class="size-label">512×512px (High-res)</div>
+                <button onclick="downloadPNG(512, 'logo-512.png')">Download PNG</button>
+            </div>
+            
+            <div class="preview-item">
+                <div class="logo-display">
+                    <img src="/logo.svg" width="192" height="192" alt="Logo" id="logo192">
+                </div>
+                <div class="size-label">192×192px (Android)</div>
+                <button onclick="downloadPNG(192, 'logo-192.png')">Download PNG</button>
+            </div>
+        </div>
+
+        <h2>🎨 Logo Specifications</h2>
+        <ul>
+            <li><strong>Style:</strong> Cute robot character holding newspaper</li>
+            <li><strong>Background:</strong> Red circle (#E51C23)</li>
+            <li><strong>Robot:</strong> Gray/white with friendly face</li>
+            <li><strong>Newspaper:</strong> Shows "NR" (News Robo)</li>
+            <li><strong>Colors:</strong> Red, Gray, White, Yellow, Black</li>
+            <li><strong>Format:</strong> SVG (scalable vector)</li>
+        </ul>
+
+        <h2>📱 Android Asset Sizes</h2>
+        <div style="margin: 20px 0;">
+            <button onclick="downloadPNG(48, 'ic_launcher_mdpi.png')">48×48 (mdpi)</button>
+            <button onclick="downloadPNG(72, 'ic_launcher_hdpi.png')">72×72 (hdpi)</button>
+            <button onclick="downloadPNG(96, 'ic_launcher_xhdpi.png')">96×96 (xhdpi)</button>
+            <button onclick="downloadPNG(144, 'ic_launcher_xxhdpi.png')">144×144 (xxhdpi)</button>
+            <button onclick="downloadPNG(192, 'ic_launcher_xxxhdpi.png')">192×192 (xxxhdpi)</button>
+        </div>
+
+        <div class="instructions" style="background: #D4EDDA; border-left-color: #28A745;">
+            <h3>✅ Next Steps:</h3>
+            <ol>
+                <li>The SVG logo is ready at <code>/public/logo.svg</code></li>
+                <li>Download the PNG versions using the buttons above</li>
+                <li>Replace Android app icons in <code>/android/app/src/main/res/mipmap-*/</code></li>
+                <li>Run <code>npm run build</code> and <code>npx cap sync android</code></li>
+                <li>Build your APK and the new robot logo will appear!</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        function downloadPNG(size, filename) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = size;
+            canvas.height = size;
+
+            const img = new Image();
+            img.onload = function() {
+                ctx.drawImage(img, 0, 0, size, size);
+                canvas.toBlob(function(blob) {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                });
+            };
+            img.src = '/logo.svg';
+        }
+    </script>
+</body>
+</html>

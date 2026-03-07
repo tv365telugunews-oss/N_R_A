@@ -158,6 +158,7 @@ export function DashboardOverview() {
               />
               <Legend />
               <Line 
+                key="views-line"
                 type="monotone" 
                 dataKey="views" 
                 stroke="#D32F2F" 
@@ -166,6 +167,7 @@ export function DashboardOverview() {
                 activeDot={{ r: 8 }}
               />
               <Line 
+                key="users-line"
                 type="monotone" 
                 dataKey="users" 
                 stroke="#FFC107" 
