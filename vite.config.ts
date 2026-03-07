@@ -49,6 +49,7 @@ export default defineConfig({
         'figma:asset/60cc8bb3430c288a3c24a1e0b39148e381fa1981.png',
         'react/jsx-runtime',
         'react',
+        'react-dom/client',
       ],
       output: {
         manualChunks: undefined,
