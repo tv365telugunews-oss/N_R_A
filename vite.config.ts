@@ -50,6 +50,7 @@ export default defineConfig({
         'react/jsx-runtime',
         'react',
         'react-dom/client',
+        'react-dom',
       ],
       output: {
         manualChunks: undefined,
