@@ -1,7 +1,7 @@
 # Netlify Configuration for NEWS ROBO
 [build]
   publish = "dist"
-  command = "npm run build"
+  command = "npm ci --legacy-peer-deps --include=dev && npm run build"
 
 # Redirect all routes to index.html for SPA
 [[redirects]]
