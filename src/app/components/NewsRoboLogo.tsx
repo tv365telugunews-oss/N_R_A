@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import logoImage from "figma:asset/60cc8bb3430c288a3c24a1e0b39148e381fa1981.png";
+import logoImage from '../../assets/logo.png';
 
 interface NewsRoboLogoProps {
   className?: string;
@@ -109,3 +109,4 @@ export function NewsRoboLogo({ className = "h-14 w-14" }: NewsRoboLogoProps) {
     />
   );
 }
+
