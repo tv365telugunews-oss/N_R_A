@@ -1,114 +1,85 @@
 import express from "express";
 import cors from "cors";
+import pkg from "pg";
+
+const { Pool } = pkg;
 
 const app = express();
-const PORT = 3000;
-
-// middleware
 app.use(cors());
 app.use(express.json());
 
-/* -----------------------------------
-   Sample News Data (temporary)
------------------------------------ */
-
-let news = [
-{
- id:1,
- category:"Business",
- title:"Indian Startup Raises $150M",
- description:"Bengaluru fintech startup PayNow raised $150M funding.",
- content:"Bengaluru-based fintech startup PayNow has successfully raised $150 million in Series C funding led by Sequoia Capital and Tiger Global.",
- language:"en",
- location:"Bengaluru",
- time:"5 hours ago"
-},
-
-{
- id:2,
- category:"Sports",
- title:"India Wins Cricket Match",
- description:"India defeated Australia in a thrilling match.",
- content:"Team India secured a spot in the final after defeating Australia by 5 wickets in a nail-biting semi-final match.",
- language:"en",
- location:"Ahmedabad",
- time:"1 hour ago"
-},
-
-{
- id:3,
- category:"Cinema",
- title:"Ranveer Singh New Film Trailer Released",
- description:"The trailer of the upcoming film Singha 2 released today.",
- content:"Bollywood actor Ranveer Singh's much-awaited movie Singha 2 trailer was released today and received great response from fans.",
- language:"en",
- location:"Mumbai",
- time:"4 hours ago"
-}
-
-];
-
-
-/* -----------------------------------
-   API ROUTES
------------------------------------ */
-
-// test route
-app.get("/", (req,res)=>{
-res.send("NEWS ROBO API RUNNING 🚀");
+// PostgreSQL connection using Render DATABASE_URL
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
 });
 
-
-// get all news
-app.get("/news",(req,res)=>{
-res.json(news);
+// Root test route
+app.get("/", (req, res) => {
+  res.send("NEWS ROBO API RUNNING");
 });
 
-
-// get single article
-app.get("/news/:id",(req,res)=>{
-
-const id = parseInt(req.params.id);
-
-const article = news.find(n => n.id === id);
-
-if(!article){
-return res.status(404).json({message:"News not found"});
-}
-
-res.json(article);
-
+// Get all news
+app.get("/news", async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT * FROM news ORDER BY id DESC"
+    );
+    res.json(result.rows);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Database error");
+  }
 });
 
+// Get single news article
+app.get("/news/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
 
-// add news (admin)
-app.post("/news",(req,res)=>{
+    const result = await pool.query(
+      "SELECT * FROM news WHERE id=$1",
+      [id]
+    );
 
-const newArticle = {
-id: news.length + 1,
-category: req.body.category,
-title: req.body.title,
-description: req.body.description,
-content: req.body.content,
-language: req.body.language || "en",
-location: req.body.location,
-time: "just now"
-};
-
-news.push(newArticle);
-
-res.json({
-message:"News added successfully",
-data:newArticle
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Database error");
+  }
 });
 
+// Add news (Admin use)
+app.post("/news", async (req, res) => {
+  try {
+    const {
+      category,
+      title,
+      description,
+      content,
+      language,
+      location,
+      time
+    } = req.body;
+
+    const result = await pool.query(
+      `INSERT INTO news 
+      (category,title,description,content,language,location,time)
+      VALUES ($1,$2,$3,$4,$5,$6,$7)
+      RETURNING *`,
+      [category, title, description, content, language, location, time]
+    );
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Database insert error");
+  }
 });
 
+// Start server
+const PORT = process.env.PORT || 3000;
 
-/* -----------------------------------
-   START SERVER
------------------------------------ */
-
-app.listen(PORT,()=>{
-console.log(`NEWS ROBO server running on port ${PORT}`);
+app.listen(PORT, () => {
+  console.log(`NEWS ROBO API running on port ${PORT}`);
 });

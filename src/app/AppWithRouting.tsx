@@ -5,6 +5,19 @@ import { NewsFlipCard } from '@/app/components/NewsFlipCard';
 import { CategoryMenu } from '@/app/components/CategoryMenu';
 import { Onboarding } from '@/app/components/Onboarding';
 import { mockNewsData } from '@/app/data/newsData';
+import type { NewsArticle } from '@/app/types/news';
+import { NEWS_API } from '@/apiConfig.js';
+
+interface ApiNewsItem {
+  id: number;
+  title: string;
+  content: string;
+  description?: string;
+  category: string;
+  location: string;
+  time?: string;
+  language?: string;
+}
 
 export function AppWithRouting() {
   const { isAuthenticated } = useAuth();
@@ -25,10 +38,50 @@ export function AppWithRouting() {
   const [selectedLocation, setSelectedLocation] = useState(() => {
     return localStorage.getItem('newsrobo_location') || 'Hyderabad, Telangana';
   });
+  const [newsData, setNewsData] = useState<NewsArticle[]>(mockNewsData);
   const touchStartY = useRef<number>(0);
   const touchEndY = useRef<number>(0);
   const menuTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const loadNews = async () => {
+      try {
+        const response = await fetch(NEWS_API);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch news: ${response.status}`);
+        }
+
+        const apiNews = (await response.json()) as ApiNewsItem[];
+        const mappedNews: NewsArticle[] = apiNews.map((item, index) => ({
+          id: String(item.id),
+          title: item.title,
+          content: item.content || item.description || '',
+          image: `https://picsum.photos/seed/news-robo-${item.id}/1080/720`,
+          category: item.category || 'General',
+          location: item.location || 'India',
+          timestamp: item.time || 'just now',
+          likes: 100 + index,
+          dislikes: 5,
+          comments: 10 + index,
+          trustScore: 90,
+          source: 'NEWS ROBO API',
+          language: item.language || 'English',
+          mediaType: 'image',
+          isBreaking: index === 0,
+          tags: item.category ? [item.category] : ['News'],
+        }));
+
+        if (mappedNews.length > 0) {
+          setNewsData(mappedNews);
+        }
+      } catch {
+        setNewsData(mockNewsData);
+      }
+    };
+
+    loadNews();
+  }, []);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -39,10 +92,18 @@ export function AppWithRouting() {
 
   // Filter news based on selected category
   const filteredNews = selectedCategory === 'All News' 
-    ? mockNewsData 
-    : mockNewsData.filter(news => news.category === selectedCategory);
+    ? newsData 
+    : newsData.filter(news => news.category === selectedCategory);
 
   const currentNews = filteredNews[currentIndex];
+
+  if (filteredNews.length === 0) {
+    return (
+      <div className="w-full h-screen bg-[#212121] text-white flex items-center justify-center px-6 text-center">
+        No news available for this category right now.
+      </div>
+    );
+  }
 
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartY.current = e.touches[0].clientY;

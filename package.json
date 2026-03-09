@@ -6,6 +6,7 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite",
+    "start": "node server.js",
     "preview": "vite preview",
     "verify": "node verify-setup.js",
     "verify:workflow": "node verify-workflow.js",
@@ -88,6 +89,7 @@
     "lucide-react": "0.487.0",
     "motion": "12.23.24",
     "next-themes": "0.4.6",
+    "pg": "^8.20.0",
     "react": "18.3.1",
     "react-day-picker": "8.10.1",
     "react-dnd": "16.0.1",
@@ -120,18 +122,5 @@
     "overrides": {
       "vite": "6.3.5"
     }
-  },
-  "description": "![NEWS ROBO Logo](https://img.shields.io/badge/NEWS-ROBO-D32F2F?style=for-the-badge&logo=react&logoColor=white)",
-  "main": "build-apk-wizard.js",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/tv365telugunews-oss/N_R_A.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/tv365telugunews-oss/N_R_A/issues"
-  },
-  "homepage": "https://github.com/tv365telugunews-oss/N_R_A#readme"
+  }
 }
