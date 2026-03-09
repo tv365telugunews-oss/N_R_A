@@ -76,11 +76,14 @@
     "@radix-ui/react-toggle": "1.1.2",
     "@radix-ui/react-toggle-group": "1.1.2",
     "@radix-ui/react-tooltip": "1.1.8",
+    "body-parser": "^2.2.2",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
     "cmdk": "1.1.1",
+    "cors": "^2.8.6",
     "date-fns": "3.6.0",
     "embla-carousel-react": "8.6.0",
+    "express": "^5.2.1",
     "input-otp": "1.4.2",
     "lucide-react": "0.487.0",
     "motion": "12.23.24",
@@ -117,5 +120,18 @@
     "overrides": {
       "vite": "6.3.5"
     }
-  }
+  },
+  "description": "![NEWS ROBO Logo](https://img.shields.io/badge/NEWS-ROBO-D32F2F?style=for-the-badge&logo=react&logoColor=white)",
+  "main": "build-apk-wizard.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tv365telugunews-oss/N_R_A.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tv365telugunews-oss/N_R_A/issues"
+  },
+  "homepage": "https://github.com/tv365telugunews-oss/N_R_A#readme"
 }
