@@ -24,6 +24,7 @@ app.use((error, req, res, next) => {
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const fallbackFile = path.join(__dirname, "news-fallback.json");
+const DEPLOY_MARKER = "health-db-fix-2026-03-10";
 
 const dbUrl = process.env.DATABASE_URL || "";
 const isLocalDb = /localhost|127\.0\.0\.1/.test(dbUrl);
@@ -158,7 +159,7 @@ function applyNewsFilters(news, params) {
 
 // Root test route
 app.get("/", (req, res) => {
-  res.send("NEWS ROBO API RUNNING");
+  res.send(`NEWS ROBO API RUNNING (${DEPLOY_MARKER})`);
 });
 
 // Health check route
