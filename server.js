@@ -179,25 +179,6 @@ app.get("/health", async (req, res) => {
   }
 });
 
-// Health check route
-app.get("/health/db", async (req, res) => {
-  try {
-    await pool.query("SELECT 1");
-    res.json({
-      ok: true,
-      database: "connected",
-      now: new Date().toISOString(),
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({
-      ok: false,
-      database: "error",
-      error: err.message,
-    });
-  }
-});
-
 // Get all news
 app.get("/news", async (req, res) => {
   const params = parseListParams(req.query);
@@ -394,6 +375,25 @@ app.delete("/news/:id", async (req, res) => {
       ? "Database delete error"
       : `Database delete error: ${error.code || "UNKNOWN"} ${error.message}`;
     return res.status(500).send(message);
+  }
+});
+
+// Health check endpoint
+app.get("/health/db", async (req, res) => {
+  try {
+    await pool.query("SELECT 1");
+    res.json({
+      ok: true,
+      database: "connected",
+      now: new Date().toISOString(),
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      ok: false,
+      database: "error",
+      error: err.message,
+    });
   }
 });
 
