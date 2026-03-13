@@ -1,6 +1,9 @@
 import express from "express";
 import cors from "cors";
 import pkg from "pg";
+import rateLimit from "express-rate-limit";
+import cron from "node-cron";
+import * as Sentry from "@sentry/node";
 import { existsSync, readFileSync } from "fs";
 import { readFile, writeFile } from "fs/promises";
 import path from "path";
@@ -12,7 +15,34 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+if (process.env.SENTRY_DSN) {
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    tracesSampleRate: Number(process.env.SENTRY_TRACES_SAMPLE_RATE || 0),
+  });
+}
+
+const newsLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: Number(process.env.NEWS_RATE_LIMIT_MAX || 100),
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+app.use(["/news", "/api/news"], newsLimiter);
+
+app.use((req, res, next) => {
+  if (req.method === "GET" && (req.path === "/news" || req.path.startsWith("/news/") || req.path === "/api/news" || req.path.startsWith("/api/news/"))) {
+    res.set("Cache-Control", "public, max-age=300");
+  }
+  next();
+});
+
 app.use((error, req, res, next) => {
+  if (process.env.SENTRY_DSN) {
+    Sentry.captureException(error);
+  }
+
   if (error instanceof SyntaxError && error.status === 400 && "body" in error) {
     return res.status(400).json({ error: "Invalid JSON body" });
   }
@@ -23,6 +53,11 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const fallbackFile = path.join(__dirname, "news-fallback.json");
 const DEPLOY_MARKER = "health-db-fix-2026-03-10";
+let newsRefreshState = {
+  updatedAt: null,
+  source: "startup",
+  count: 0,
+};
 
 function loadLocalEnvFile() {
   const candidates = [
@@ -118,6 +153,53 @@ function normalizeText(value) {
   return typeof value === "string" ? value.trim() : "";
 }
 
+const languageAliasMap = {
+  en: "en",
+  english: "en",
+  hi: "hi",
+  hindi: "hi",
+  te: "te",
+  telugu: "te",
+  fr: "fr",
+  french: "fr",
+  es: "es",
+  spanish: "es",
+  de: "de",
+  german: "de",
+  ar: "ar",
+  arabic: "ar",
+  ta: "ta",
+  tamil: "ta",
+  kn: "kn",
+  kannada: "kn",
+  ml: "ml",
+  malayalam: "ml",
+  bn: "bn",
+  bengali: "bn",
+  gu: "gu",
+  gujarati: "gu",
+  pa: "pa",
+  punjabi: "pa",
+  mr: "mr",
+  marathi: "mr",
+};
+
+function canonicalLanguage(value) {
+  const normalized = normalizeText(value).toLowerCase();
+  return languageAliasMap[normalized] || normalized;
+}
+
+function detectLanguageFromHeaders(headers) {
+  const acceptLanguage = normalizeText(headers?.["accept-language"]).toLowerCase();
+  if (!acceptLanguage) {
+    return "";
+  }
+
+  const primary = acceptLanguage.split(",")[0] || "";
+  const langCode = primary.split("-")[0] || "";
+  return canonicalLanguage(langCode);
+}
+
 function validateNewsPayload(body) {
   const normalized = {
     category: normalizeText(body?.category),
@@ -140,18 +222,20 @@ function validateNewsPayload(body) {
   return { ok: true, data: normalized };
 }
 
-function parseListParams(query) {
+function parseListParams(query, headers = {}) {
   const pageRaw = Number(query?.page || 1);
   const limitRaw = Number(query?.limit || 20);
   const page = Number.isFinite(pageRaw) && pageRaw > 0 ? Math.floor(pageRaw) : 1;
   const limit = Number.isFinite(limitRaw) && limitRaw > 0 ? Math.min(Math.floor(limitRaw), 100) : 20;
+  const detectedLanguage = detectLanguageFromHeaders(headers);
+  const requestedLanguage = normalizeText(query?.language || query?.lang);
 
   return {
     page,
     limit,
     q: normalizeText(query?.q).toLowerCase(),
     category: normalizeText(query?.category).toLowerCase(),
-    language: normalizeText(query?.language).toLowerCase(),
+    language: canonicalLanguage(requestedLanguage || detectedLanguage),
     location: normalizeText(query?.location).toLowerCase(),
   };
 }
@@ -164,7 +248,7 @@ function applyNewsFilters(news, params) {
   }
 
   if (params.language) {
-    filtered = filtered.filter((item) => normalizeText(item?.language).toLowerCase() === params.language);
+    filtered = filtered.filter((item) => canonicalLanguage(item?.language) === params.language);
   }
 
   if (params.location) {
@@ -198,6 +282,81 @@ function applyNewsFilters(news, params) {
   };
 }
 
+function extractItemDate(item) {
+  const candidates = [item?.created_at, item?.updated_at, item?.time];
+  for (const candidate of candidates) {
+    const asDate = new Date(candidate);
+    if (!Number.isNaN(asDate.getTime())) {
+      return asDate;
+    }
+  }
+  return null;
+}
+
+function computeTrendingScore(item) {
+  const views = Number(item?.views) || 0;
+  const shares = Number(item?.shares) || 0;
+  const likes = Number(item?.likes) || 0;
+  const comments = Number(item?.comments) || 0;
+  const engagementScore = views + (shares * 4) + (likes * 2) + (comments * 3);
+
+  const articleDate = extractItemDate(item);
+  const hoursSincePublish = articleDate ? Math.max(0, (Date.now() - articleDate.getTime()) / (1000 * 60 * 60)) : 72;
+  const recencyScore = Math.max(0, 240 - hoursSincePublish);
+
+  return Number((engagementScore + recencyScore).toFixed(2));
+}
+
+function applyTrending(news, params) {
+  const filtered = applyNewsFilters(news, params).data;
+  const ranked = filtered
+    .map((item) => ({
+      ...item,
+      trendingScore: computeTrendingScore(item),
+    }))
+    .sort((a, b) => b.trendingScore - a.trendingScore);
+
+  const total = ranked.length;
+  const start = (params.page - 1) * params.limit;
+  const data = ranked.slice(start, start + params.limit);
+
+  return {
+    data,
+    pagination: {
+      page: params.page,
+      limit: params.limit,
+      total,
+      hasNext: start + params.limit < total,
+      hasPrev: params.page > 1,
+    },
+  };
+}
+
+async function refreshNewsCache() {
+  try {
+    const result = await pool.query("SELECT * FROM news ORDER BY id DESC LIMIT 500");
+    newsRefreshState = {
+      updatedAt: new Date().toISOString(),
+      source: "database",
+      count: result.rows.length,
+    };
+  } catch (dbError) {
+    if (canUseFallback(dbError)) {
+      const fallback = await readFallbackNews();
+      newsRefreshState = {
+        updatedAt: new Date().toISOString(),
+        source: "fallback",
+        count: fallback.length,
+      };
+      return;
+    }
+
+    if (process.env.SENTRY_DSN) {
+      Sentry.captureException(dbError);
+    }
+  }
+}
+
 // Root test route
 app.get("/", (req, res) => {
   res.send(`NEWS ROBO API RUNNING (${DEPLOY_MARKER})`);
@@ -210,6 +369,7 @@ app.get("/health", async (req, res) => {
     res.json({
       ok: true,
       database: "connected",
+      refresh: newsRefreshState,
       now: new Date().toISOString(),
     });
   } catch (err) {
@@ -223,7 +383,7 @@ app.get("/health", async (req, res) => {
 
 // Get all news
 app.get("/news", async (req, res) => {
-  const params = parseListParams(req.query);
+  const params = parseListParams(req.query, req.headers);
 
   try {
     const result = await pool.query(
@@ -242,7 +402,41 @@ app.get("/news", async (req, res) => {
     const message = process.env.NODE_ENV === "production"
       ? "Database error"
       : `Database error: ${error.code || "UNKNOWN"} ${error.message}`;
+    if (process.env.SENTRY_DSN) {
+      Sentry.captureException(error);
+    }
     res.status(500).send(message);
+  }
+});
+
+// Search news alias endpoint
+app.get("/news/search", async (req, res) => {
+  return redirectToNewsPath(req, res, "/news");
+});
+
+// Trending news endpoint
+app.get("/news/trending", async (req, res) => {
+  const params = parseListParams(req.query, req.headers);
+
+  try {
+    const result = await pool.query("SELECT * FROM news ORDER BY id DESC");
+    const payload = applyTrending(result.rows, params);
+    return sendJsonWithSource(res, "database", payload);
+  } catch (error) {
+    if (canUseFallback(error)) {
+      const news = await readFallbackNews();
+      const payload = applyTrending(news, params);
+      return sendJsonWithSource(res, "fallback", payload);
+    }
+
+    if (process.env.SENTRY_DSN) {
+      Sentry.captureException(error);
+    }
+
+    const message = process.env.NODE_ENV === "production"
+      ? "Database error"
+      : `Database error: ${error.code || "UNKNOWN"} ${error.message}`;
+    return res.status(500).send(message);
   }
 });
 
@@ -436,6 +630,8 @@ app.get("/api", (req, res) => {
 });
 
 app.get("/api/news", (req, res) => redirectToNewsPath(req, res, "/news"));
+app.get("/api/news/search", (req, res) => redirectToNewsPath(req, res, "/news/search"));
+app.get("/api/news/trending", (req, res) => redirectToNewsPath(req, res, "/news/trending"));
 app.get("/api/news/:id", (req, res) => redirectToNewsPath(req, res, `/news/${req.params.id}`));
 app.post("/api/news", (req, res) => redirectToNewsPath(req, res, "/news"));
 app.put("/api/news/:id", (req, res) => redirectToNewsPath(req, res, `/news/${req.params.id}`));
@@ -470,6 +666,12 @@ const server = app.listen(PORT, () => {
   pool.query("SELECT 1")
     .then(() => console.log("DATA MODE: database"))
     .catch(() => console.log("DATA MODE: fallback"));
+
+  void refreshNewsCache();
+
+  cron.schedule("*/10 * * * *", () => {
+    void refreshNewsCache();
+  });
 });
 
 server.on("error", (error) => {

@@ -13,12 +13,20 @@ Required environment variables (Render -> Settings -> Environment):
 PORT=10000
 DATABASE_URL=<your_render_postgres_connection_string>
 
+Optional backend hardening variables:
+
+NEWS_RATE_LIMIT_MAX=100
+SENTRY_DSN=<your_sentry_dsn>
+SENTRY_TRACES_SAMPLE_RATE=0.1
+
 Backend route checks:
 
 - https://news-robo-api.onrender.com/
 - https://news-robo-api.onrender.com/health
 - https://news-robo-api.onrender.com/news
 - https://news-robo-api.onrender.com/api/news
+- https://news-robo-api.onrender.com/news/search?q=news
+- https://news-robo-api.onrender.com/news/trending
 
 Expected:
 
@@ -26,6 +34,15 @@ Expected:
 - /health returns ok true
 - /news returns JSON with data and pagination
 - /api/news returns same data (compat route)
+- /news/search supports text search via q
+- /news/trending returns ranked news items
+
+Built-in backend protections/features:
+
+- Rate limiting enabled on /news and /api/news
+- Cache-Control headers for GET news responses (5 minutes)
+- Optional Sentry error capture when SENTRY_DSN is configured
+- Scheduled refresh task runs every 10 minutes
 
 ## 2) Frontend API config
 
@@ -80,6 +97,8 @@ API only:
 npm run verify:deploy
 
 This checks both `/news` and `/api/news`.
+
+It also checks `/news/search` and `/news/trending`.
 
 API + frontend:
 

@@ -85,6 +85,18 @@ function fail(message) {
   }
   console.log(`OK /api/news (${aliasNews.status}) count=${aliasNews.body.pagination?.total ?? "n/a"}`);
 
+  const search = await requestJson(`${apiBaseUrl}/news/search?q=news&limit=1&page=1`);
+  if (!search.ok || !search.body || !Array.isArray(search.body.data)) {
+    fail(`/news/search check failed (status ${search.status})`);
+  }
+  console.log(`OK /news/search (${search.status}) count=${search.body.pagination?.total ?? "n/a"}`);
+
+  const trending = await requestJson(`${apiBaseUrl}/news/trending?limit=1&page=1`);
+  if (!trending.ok || !trending.body || !Array.isArray(trending.body.data)) {
+    fail(`/news/trending check failed (status ${trending.status})`);
+  }
+  console.log(`OK /news/trending (${trending.status}) count=${trending.body.pagination?.total ?? "n/a"}`);
+
   if (frontendUrl) {
     const frontend = await requestHeadOrGet(frontendUrl);
     if (!frontend.ok) {
