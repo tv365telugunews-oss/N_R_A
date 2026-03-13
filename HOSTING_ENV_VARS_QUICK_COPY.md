@@ -4,7 +4,12 @@ Use these values in your frontend hosting dashboard (Netlify, Vercel, or Render 
 
 ## Frontend
 
+VITE_API_URL=https://news-robo-api.onrender.com
 VITE_API_BASE_URL=https://news-robo-api.onrender.com
+
+Frontend code pattern:
+
+fetch(`${import.meta.env.VITE_API_URL}/news`)
 
 ## Backend (Render Web Service)
 
