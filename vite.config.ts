@@ -39,7 +39,29 @@ export default defineConfig({
     cssCodeSplit: true,
     rollupOptions: {
       output: {
-        manualChunks: undefined,
+        manualChunks(id) {
+          if (!id.includes('node_modules')) {
+            return undefined;
+          }
+
+          const [, modulePath = ''] = id.split('node_modules/');
+          const parts = modulePath.split('/');
+          const packageName = parts[0]?.startsWith('@') ? `${parts[0]}/${parts[1] || ''}` : parts[0];
+
+          if (id.includes('/xlsx/')) {
+            return 'vendor-xlsx';
+          }
+
+          if (id.includes('/recharts/') || id.includes('/d3-')) {
+            return 'vendor-charts';
+          }
+
+          if (packageName === '@mui/material' || packageName === '@mui/icons-material' || packageName === '@emotion/react' || packageName === '@emotion/styled' || packageName.startsWith('@radix-ui/')) {
+            return 'vendor-ui';
+          }
+
+          return 'vendor';
+        },
         // Consistent asset naming for Android
         assetFileNames: 'assets/[name]-[hash][extname]',
         chunkFileNames: 'assets/[name]-[hash].js',
