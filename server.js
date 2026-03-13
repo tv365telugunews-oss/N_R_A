@@ -197,6 +197,9 @@ function detectLanguageFromHeaders(headers) {
 
   const primary = acceptLanguage.split(",")[0] || "";
   const langCode = primary.split("-")[0] || "";
+  if (!/^[a-z]{2}$/.test(langCode)) {
+    return "";
+  }
   return canonicalLanguage(langCode);
 }
 
