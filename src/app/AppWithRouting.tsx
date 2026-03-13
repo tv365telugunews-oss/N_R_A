@@ -19,6 +19,10 @@ interface ApiNewsItem {
   language?: string;
 }
 
+interface ApiNewsListResponse {
+  data?: ApiNewsItem[];
+}
+
 export function AppWithRouting() {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -52,7 +56,8 @@ export function AppWithRouting() {
           throw new Error(`Failed to fetch news: ${response.status}`);
         }
 
-        const apiNews = (await response.json()) as ApiNewsItem[];
+        const raw = (await response.json()) as ApiNewsItem[] | ApiNewsListResponse;
+        const apiNews = Array.isArray(raw) ? raw : (raw.data || []);
         const mappedNews: NewsArticle[] = apiNews.map((item, index) => ({
           id: String(item.id),
           title: item.title,
