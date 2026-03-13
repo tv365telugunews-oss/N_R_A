@@ -1,5 +1,25 @@
-const apiBaseUrl = process.env.API_BASE_URL || "https://news-robo-api.onrender.com";
-const frontendUrl = process.env.FRONTEND_URL || "";
+function parseArgs(argv) {
+  const args = {};
+  for (let i = 0; i < argv.length; i += 1) {
+    const token = argv[i];
+    if (token === "--api-base-url") {
+      args.apiBaseUrl = argv[i + 1] || "";
+      i += 1;
+      continue;
+    }
+
+    if (token === "--frontend-url") {
+      args.frontendUrl = argv[i + 1] || "";
+      i += 1;
+      continue;
+    }
+  }
+  return args;
+}
+
+const cliArgs = parseArgs(process.argv.slice(2));
+const apiBaseUrl = cliArgs.apiBaseUrl || process.env.API_BASE_URL || "https://news-robo-api.onrender.com";
+const frontendUrl = cliArgs.frontendUrl || process.env.FRONTEND_URL || "";
 
 async function requestJson(url) {
   const response = await fetch(url);

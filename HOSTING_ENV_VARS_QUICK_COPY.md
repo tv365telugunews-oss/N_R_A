@@ -27,6 +27,18 @@ Optional frontend check:
 
 FRONTEND_URL=<your_frontend_url> npm run verify:deploy
 
+Cross-platform flag-based alternative:
+
+npm run verify:deploy -- --frontend-url https://your-frontend-url
+
+Optional API override:
+
+npm run verify:deploy -- --api-base-url https://news-robo-api.onrender.com --frontend-url https://your-frontend-url
+
+Local preview shortcut:
+
+npm run verify:deploy:local
+
 Find a live frontend URL from known candidates:
 
 npm run check:frontend
