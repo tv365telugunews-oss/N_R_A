@@ -28,3 +28,7 @@ android/
 
 # Misc
 *.log
+
+# Local artifacts
+NEWS-ROBO-debug-latest.apk
+news-fallback.json
