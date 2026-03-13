@@ -67,7 +67,7 @@ function fail(message) {
   }
   console.log(`OK /health (${health.status})`);
 
-  const news = await requestJson(`${apiBaseUrl}/news?limit=1&page=1`);
+  const news = await requestJson(`${apiBaseUrl}/news?limit=1&page=1&lang=en`);
   if (!news.ok) {
     fail(`/news check failed (status ${news.status})`);
   }
@@ -76,7 +76,7 @@ function fail(message) {
   }
   console.log(`OK /news (${news.status}) count=${news.body.pagination?.total ?? "n/a"}`);
 
-  const aliasNews = await requestJson(`${apiBaseUrl}/api/news?limit=1&page=1`);
+  const aliasNews = await requestJson(`${apiBaseUrl}/api/news?limit=1&page=1&lang=en`);
   if (!aliasNews.ok) {
     fail(`/api/news check failed (status ${aliasNews.status})`);
   }
@@ -85,13 +85,13 @@ function fail(message) {
   }
   console.log(`OK /api/news (${aliasNews.status}) count=${aliasNews.body.pagination?.total ?? "n/a"}`);
 
-  const search = await requestJson(`${apiBaseUrl}/news/search?q=news&limit=1&page=1`);
+  const search = await requestJson(`${apiBaseUrl}/news/search?q=news&limit=1&page=1&lang=en`);
   if (!search.ok || !search.body || !Array.isArray(search.body.data)) {
     fail(`/news/search check failed (status ${search.status})`);
   }
   console.log(`OK /news/search (${search.status}) count=${search.body.pagination?.total ?? "n/a"}`);
 
-  const trending = await requestJson(`${apiBaseUrl}/news/trending?limit=1&page=1`);
+  const trending = await requestJson(`${apiBaseUrl}/news/trending?limit=1&page=1&lang=en`);
   if (!trending.ok || !trending.body || !Array.isArray(trending.body.data)) {
     fail(`/news/trending check failed (status ${trending.status})`);
   }
