@@ -67,6 +67,29 @@ npm run build
 
 ## 🚀 Deployment
 
+### Frontend API Connection (Render)
+
+Set the frontend API base URL using Vite environment variables.
+
+1. Create a local env file from `.env.example`.
+2. Use this value:
+
+```env
+VITE_API_BASE_URL=https://news-robo-api.onrender.com
+```
+
+The frontend reads `VITE_API_BASE_URL` and falls back to `https://news-robo-api.onrender.com`.
+
+If requests fail on Render:
+
+1. Open Render dashboard.
+2. Check Logs for startup errors and API request errors.
+3. In Settings -> Environment, add required variables and redeploy.
+
+Optional cold-start mitigation for free tier:
+
+- Ping `https://news-robo-api.onrender.com` every 5 minutes using UptimeRobot or Cron-job.org.
+
 ### Deploy to Netlify (Recommended)
 
 This project is configured for instant Netlify deployment:
