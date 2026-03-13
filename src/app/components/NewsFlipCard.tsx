@@ -30,6 +30,8 @@ import { FullScreenAd } from '@/app/components/FullScreenAd';
 interface NewsArticle {
   id: string;
   title: string;
+  shortHeadline?: string;
+  summary?: string;
   content: string;
   image: string;
   video?: string;
@@ -219,6 +221,11 @@ export function NewsFlipCard({
               <h1 className="text-white font-bold text-2xl mb-2 leading-tight">
                 {news.title}
               </h1>
+              {news.summary && (
+                <p className="text-white/90 text-sm mb-2 line-clamp-2">
+                  AI summary: {news.summary}
+                </p>
+              )}
               <div className="flex items-center gap-2">
                 <div className="bg-[#D32F2F] px-3 py-1 rounded-full">
                   <span className="text-white text-xs font-semibold">{news.category}</span>
@@ -315,6 +322,12 @@ export function NewsFlipCard({
           <h1 className="text-[#212121] font-bold text-xl mb-3 leading-tight">
             {news.title}
           </h1>
+
+          {news.summary && (
+            <p className="text-[#D32F2F] text-sm font-medium mb-3">
+              AI summary: {news.summary}
+            </p>
+          )}
 
           <p className="text-[#212121]/80 text-base leading-relaxed mb-4">
             {news.content}
@@ -506,6 +519,12 @@ export function NewsFlipCard({
         <h1 className="text-[#212121] font-bold text-xl mb-3 leading-tight">
           {news.title}
         </h1>
+
+        {news.summary && (
+          <p className="text-[#D32F2F] text-sm font-medium mb-3">
+            AI summary: {news.summary}
+          </p>
+        )}
 
         {/* Content */}
         <p className="text-[#212121]/80 text-base leading-relaxed mb-4">

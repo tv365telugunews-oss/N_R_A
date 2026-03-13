@@ -1,6 +1,8 @@
 export interface NewsArticle {
   id: string;
   title: string;
+  shortHeadline?: string;
+  summary?: string;
   content: string;
   image: string;
   video?: string; // Optional video URL for video-based news

@@ -97,6 +97,18 @@ function fail(message) {
   }
   console.log(`OK /news/trending (${trending.status}) count=${trending.body.pagination?.total ?? "n/a"}`);
 
+  const clusters = await requestJson(`${apiBaseUrl}/news/clusters?limit=5&page=1&lang=en`);
+  if (!clusters.ok || !clusters.body || !Array.isArray(clusters.body.data)) {
+    fail(`/news/clusters check failed (status ${clusters.status})`);
+  }
+  console.log(`OK /news/clusters (${clusters.status}) total=${clusters.body.totalClusters ?? clusters.body.data.length}`);
+
+  const feed = await requestJson(`${apiBaseUrl}/news/feed?topics=ai,technology&limit=1&page=1&lang=en`);
+  if (!feed.ok || !feed.body || !Array.isArray(feed.body.data)) {
+    fail(`/news/feed check failed (status ${feed.status})`);
+  }
+  console.log(`OK /news/feed (${feed.status}) count=${feed.body.pagination?.total ?? "n/a"}`);
+
   if (frontendUrl) {
     const frontend = await requestHeadOrGet(frontendUrl);
     if (!frontend.ok) {

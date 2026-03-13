@@ -4,6 +4,7 @@ import pkg from "pg";
 import rateLimit from "express-rate-limit";
 import cron from "node-cron";
 import * as Sentry from "@sentry/node";
+import { clusterNewsByTopic, enrichArticleWithAi, enrichNewsBatchWithAi, personalizeNews } from "./services/newsAi.js";
 import { existsSync, readFileSync } from "fs";
 import { readFile, writeFile } from "fs/promises";
 import path from "path";
@@ -360,6 +361,37 @@ async function refreshNewsCache() {
   }
 }
 
+async function getNewsRowsWithSource() {
+  try {
+    const result = await pool.query("SELECT * FROM news ORDER BY id DESC");
+    return { source: "database", rows: result.rows };
+  } catch (error) {
+    if (canUseFallback(error)) {
+      const rows = await readFallbackNews();
+      return { source: "fallback", rows };
+    }
+
+    throw error;
+  }
+}
+
+function paginate(items, params) {
+  const total = items.length;
+  const start = (params.page - 1) * params.limit;
+  const data = items.slice(start, start + params.limit);
+
+  return {
+    data,
+    pagination: {
+      page: params.page,
+      limit: params.limit,
+      total,
+      hasNext: start + params.limit < total,
+      hasPrev: params.page > 1,
+    },
+  };
+}
+
 // Root test route
 app.get("/", (req, res) => {
   res.send(`NEWS ROBO API RUNNING (${DEPLOY_MARKER})`);
@@ -387,20 +419,17 @@ app.get("/health", async (req, res) => {
 // Get all news
 app.get("/news", async (req, res) => {
   const params = parseListParams(req.query, req.headers);
+  const aiMaxItems = Number(process.env.OPENAI_MAX_ITEMS || 10);
 
   try {
-    const result = await pool.query(
-      "SELECT * FROM news ORDER BY id DESC"
-    );
-    const payload = applyNewsFilters(result.rows, params);
-    return sendJsonWithSource(res, "database", payload);
+    const { source, rows } = await getNewsRowsWithSource();
+    const payload = applyNewsFilters(rows, params);
+    const enriched = await enrichNewsBatchWithAi(payload.data, aiMaxItems);
+    return sendJsonWithSource(res, source, {
+      ...payload,
+      data: enriched,
+    });
   } catch (error) {
-    if (canUseFallback(error)) {
-      const news = await readFallbackNews();
-      const payload = applyNewsFilters(news, params);
-      return sendJsonWithSource(res, "fallback", payload);
-    }
-
     console.error("GET /news DB error:", error.code, error.message);
     const message = process.env.NODE_ENV === "production"
       ? "Database error"
@@ -417,21 +446,80 @@ app.get("/news/search", async (req, res) => {
   return redirectToNewsPath(req, res, "/news");
 });
 
-// Trending news endpoint
-app.get("/news/trending", async (req, res) => {
+app.get("/news/clusters", async (req, res) => {
   const params = parseListParams(req.query, req.headers);
 
   try {
-    const result = await pool.query("SELECT * FROM news ORDER BY id DESC");
-    const payload = applyTrending(result.rows, params);
-    return sendJsonWithSource(res, "database", payload);
+    const { source, rows } = await getNewsRowsWithSource();
+    const filtered = applyNewsFilters(rows, params).data;
+    const clusters = clusterNewsByTopic(filtered);
+    return sendJsonWithSource(res, source, {
+      data: clusters,
+      totalClusters: clusters.length,
+    });
   } catch (error) {
-    if (canUseFallback(error)) {
-      const news = await readFallbackNews();
-      const payload = applyTrending(news, params);
-      return sendJsonWithSource(res, "fallback", payload);
+    if (process.env.SENTRY_DSN) {
+      Sentry.captureException(error);
     }
 
+    const message = process.env.NODE_ENV === "production"
+      ? "Database error"
+      : `Database error: ${error.code || "UNKNOWN"} ${error.message}`;
+    return res.status(500).send(message);
+  }
+});
+
+app.get("/news/feed", async (req, res) => {
+  const params = parseListParams(req.query, req.headers);
+  const aiMaxItems = Number(process.env.OPENAI_MAX_ITEMS || 10);
+  const topics = normalizeText(req.query?.topics)
+    .split(",")
+    .map((topic) => topic.trim().toLowerCase())
+    .filter(Boolean);
+
+  try {
+    const { source, rows } = await getNewsRowsWithSource();
+    const filtered = applyNewsFilters(rows, params).data;
+    const ranked = personalizeNews(filtered, {
+      topics,
+      language: params.language,
+    });
+    const payload = paginate(ranked, params);
+    const enriched = await enrichNewsBatchWithAi(payload.data, aiMaxItems);
+    return sendJsonWithSource(res, source, {
+      ...payload,
+      data: enriched,
+      preferences: {
+        topics,
+        language: params.language || "",
+      },
+    });
+  } catch (error) {
+    if (process.env.SENTRY_DSN) {
+      Sentry.captureException(error);
+    }
+
+    const message = process.env.NODE_ENV === "production"
+      ? "Database error"
+      : `Database error: ${error.code || "UNKNOWN"} ${error.message}`;
+    return res.status(500).send(message);
+  }
+});
+
+// Trending news endpoint
+app.get("/news/trending", async (req, res) => {
+  const params = parseListParams(req.query, req.headers);
+  const aiMaxItems = Number(process.env.OPENAI_MAX_ITEMS || 10);
+
+  try {
+    const { source, rows } = await getNewsRowsWithSource();
+    const payload = applyTrending(rows, params);
+    const enriched = await enrichNewsBatchWithAi(payload.data, aiMaxItems);
+    return sendJsonWithSource(res, source, {
+      ...payload,
+      data: enriched,
+    });
+  } catch (error) {
     if (process.env.SENTRY_DSN) {
       Sentry.captureException(error);
     }
@@ -453,13 +541,15 @@ app.get("/news/:id", async (req, res) => {
       [id]
     );
 
-    return sendJsonWithSource(res, "database", result.rows[0] || null);
+    const enriched = await enrichArticleWithAi(result.rows[0] || null);
+    return sendJsonWithSource(res, "database", enriched || null);
   } catch (error) {
     if (canUseFallback(error)) {
       const id = req.params.id;
       const news = await readFallbackNews();
       const article = news.find((item) => String(item.id) === String(id));
-      return sendJsonWithSource(res, "fallback", article || null);
+      const enriched = await enrichArticleWithAi(article || null);
+      return sendJsonWithSource(res, "fallback", enriched || null);
     }
 
     console.error("GET /news/:id DB error:", error.code, error.message);
@@ -628,13 +718,15 @@ app.get("/api", (req, res) => {
   return res.json({
     ok: true,
     message: "NEWS ROBO API",
-    routes: ["/news", "/health", "/health/db"],
+    routes: ["/news", "/news/search", "/news/trending", "/news/clusters", "/news/feed", "/health", "/health/db"],
   });
 });
 
 app.get("/api/news", (req, res) => redirectToNewsPath(req, res, "/news"));
 app.get("/api/news/search", (req, res) => redirectToNewsPath(req, res, "/news/search"));
 app.get("/api/news/trending", (req, res) => redirectToNewsPath(req, res, "/news/trending"));
+app.get("/api/news/clusters", (req, res) => redirectToNewsPath(req, res, "/news/clusters"));
+app.get("/api/news/feed", (req, res) => redirectToNewsPath(req, res, "/news/feed"));
 app.get("/api/news/:id", (req, res) => redirectToNewsPath(req, res, `/news/${req.params.id}`));
 app.post("/api/news", (req, res) => redirectToNewsPath(req, res, "/news"));
 app.put("/api/news/:id", (req, res) => redirectToNewsPath(req, res, `/news/${req.params.id}`));

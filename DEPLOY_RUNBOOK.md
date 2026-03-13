@@ -18,6 +18,10 @@ Optional backend hardening variables:
 NEWS_RATE_LIMIT_MAX=100
 SENTRY_DSN=<your_sentry_dsn>
 SENTRY_TRACES_SAMPLE_RATE=0.1
+OPENAI_API_KEY=<your_openai_api_key>
+OPENAI_SUMMARY_MODEL=gpt-4o-mini
+OPENAI_HEADLINE_MODEL=gpt-4o-mini
+OPENAI_MAX_ITEMS=10
 
 Backend route checks:
 
@@ -27,6 +31,8 @@ Backend route checks:
 - https://news-robo-api.onrender.com/api/news
 - https://news-robo-api.onrender.com/news/search?q=news
 - https://news-robo-api.onrender.com/news/trending
+- https://news-robo-api.onrender.com/news/clusters
+- https://news-robo-api.onrender.com/news/feed?topics=ai,technology
 
 Expected:
 
@@ -36,6 +42,8 @@ Expected:
 - /api/news returns same data (compat route)
 - /news/search supports text search via q
 - /news/trending returns ranked news items
+- /news/clusters groups related articles by topic keyword
+- /news/feed personalizes ranking using topics + language
 
 Built-in backend protections/features:
 
@@ -43,6 +51,9 @@ Built-in backend protections/features:
 - Cache-Control headers for GET news responses (5 minutes)
 - Optional Sentry error capture when SENTRY_DSN is configured
 - Scheduled refresh task runs every 10 minutes
+- AI enrichment on news responses:
+  - summary (2 concise sentences)
+  - shortHeadline (clear, shorter headline)
 
 ## 2) Frontend API config
 
@@ -99,6 +110,8 @@ npm run verify:deploy
 This checks both `/news` and `/api/news`.
 
 It also checks `/news/search` and `/news/trending`.
+
+It also checks `/news/clusters` and `/news/feed`.
 
 API + frontend:
 

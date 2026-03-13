@@ -12,6 +12,8 @@ import { getLanguageCode, translateNewsArticles, warmTranslationCache } from '@/
 interface ApiNewsItem {
   id: number;
   title: string;
+  shortHeadline?: string;
+  summary?: string;
   content: string;
   description?: string;
   category: string;
@@ -62,7 +64,9 @@ export function AppWithRouting() {
         const apiNews = Array.isArray(raw) ? raw : (raw.data || []);
         const mappedNews: NewsArticle[] = apiNews.map((item, index) => ({
           id: String(item.id),
-          title: item.title,
+          title: item.shortHeadline || item.title,
+          shortHeadline: item.shortHeadline,
+          summary: item.summary,
           content: item.content || item.description || '',
           image: `https://picsum.photos/seed/news-robo-${item.id}/1080/720`,
           category: item.category || 'General',
