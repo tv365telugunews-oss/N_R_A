@@ -1,4 +1,5 @@
 import { HashRouter as Router, Routes, Route, Navigate } from 'react-router';
+import { lazy, Suspense } from 'react';
 import { AuthProvider, useAuth } from '@/app/contexts/AuthContext';
 import { AdminAuthProvider } from '@/app/contexts/AdminAuthContext';
 import { ReporterAuthProvider } from '@/app/contexts/ReporterAuthContext';
@@ -10,7 +11,6 @@ import { TermsAndConditionsPage } from '@/app/pages/TermsAndConditionsPage';
 import { LoginPage } from '@/app/pages/LoginPage';
 import { OnboardingPage } from '@/app/pages/OnboardingPage';
 import { AppWithRouting } from '@/app/AppWithRouting';
-import AdminDashboard from '@/app/pages/AdminDashboard';
 import ProfilePage from '@/app/pages/ProfilePage';
 import BookmarksPage from '@/app/pages/BookmarksPage';
 import ContactUsPage from '@/app/pages/ContactUsPage';
@@ -20,6 +20,8 @@ import VideosPage from '@/app/pages/VideosPage';
 import ViralPage from '@/app/pages/ViralPage';
 import ExclusivePage from '@/app/pages/ExclusivePage';
 import { Toaster } from 'sonner';
+
+const AdminDashboard = lazy(() => import('@/app/pages/AdminDashboard'));
 
 // Routes Component - must be inside AuthProvider
 function AppRoutes() {
@@ -61,7 +63,13 @@ function AppRoutes() {
       <Route
         path="/admin"
         element={
-          isAuthenticated ? <AdminDashboard /> : <Navigate to="/welcome" replace />
+          isAuthenticated ? (
+            <Suspense fallback={<div className="p-6">Loading admin dashboard...</div>}>
+              <AdminDashboard />
+            </Suspense>
+          ) : (
+            <Navigate to="/welcome" replace />
+          )
         }
       />
 

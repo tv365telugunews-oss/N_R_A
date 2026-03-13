@@ -56,6 +56,10 @@ export default defineConfig({
             return 'vendor-charts';
           }
 
+          if (id.includes('/react-icons/') || id.includes('/lucide-react/')) {
+            return 'vendor-icons';
+          }
+
           if (packageName === '@mui/material' || packageName === '@mui/icons-material' || packageName === '@emotion/react' || packageName === '@emotion/styled' || packageName.startsWith('@radix-ui/')) {
             return 'vendor-ui';
           }
