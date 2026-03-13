@@ -452,7 +452,12 @@ app.get("/news/clusters", async (req, res) => {
   try {
     const { source, rows } = await getNewsRowsWithSource();
     const filtered = applyNewsFilters(rows, params).data;
-    const clusters = clusterNewsByTopic(filtered);
+    let clusters = [];
+    try {
+      clusters = clusterNewsByTopic(filtered);
+    } catch {
+      clusters = [{ topic: "general", items: filtered }];
+    }
     return sendJsonWithSource(res, source, {
       data: clusters,
       totalClusters: clusters.length,
@@ -480,10 +485,15 @@ app.get("/news/feed", async (req, res) => {
   try {
     const { source, rows } = await getNewsRowsWithSource();
     const filtered = applyNewsFilters(rows, params).data;
-    const ranked = personalizeNews(filtered, {
-      topics,
-      language: params.language,
-    });
+    let ranked = filtered;
+    try {
+      ranked = personalizeNews(filtered, {
+        topics,
+        language: params.language,
+      });
+    } catch {
+      ranked = filtered;
+    }
     const payload = paginate(ranked, params);
     const enriched = await enrichNewsBatchWithAi(payload.data, aiMaxItems);
     return sendJsonWithSource(res, source, {
