@@ -1,9 +1,7 @@
-import dotenv from "dotenv";
-dotenv.config();
-
 import express from "express";
 import cors from "cors";
 import pkg from "pg";
+import { existsSync, readFileSync } from "fs";
 import { readFile, writeFile } from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -25,6 +23,49 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const fallbackFile = path.join(__dirname, "news-fallback.json");
 const DEPLOY_MARKER = "health-db-fix-2026-03-10";
+
+function loadLocalEnvFile() {
+  const candidates = [
+    path.join(process.cwd(), ".env"),
+    path.join(__dirname, ".env"),
+  ];
+
+  const envPath = candidates.find((candidate) => existsSync(candidate));
+  if (!envPath) {
+    return;
+  }
+
+  const lines = readFileSync(envPath, "utf8").split(/\r?\n/);
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) {
+      continue;
+    }
+
+    const equalIndex = trimmed.indexOf("=");
+    if (equalIndex <= 0) {
+      continue;
+    }
+
+    const key = trimmed.slice(0, equalIndex).trim();
+    if (!key || process.env[key] !== undefined) {
+      continue;
+    }
+
+    let value = trimmed.slice(equalIndex + 1).trim();
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1);
+    }
+
+    process.env[key] = value;
+  }
+}
+
+// Render injects env vars directly; this only helps local runs with a .env file.
+loadLocalEnvFile();
 
 const dbUrl = process.env.DATABASE_URL || "";
 const isLocalDb = /localhost|127\.0\.0\.1/.test(dbUrl);
