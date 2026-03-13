@@ -156,3 +156,16 @@ export async function translateNewsArticles<T extends TranslatableNews>(
     content: translatedByText.get(article.content) || article.content,
   }));
 }
+
+export async function warmTranslationCache<T extends TranslatableNews>(
+  articles: T[],
+  targetLanguageCode: string,
+  maxArticles = 6
+): Promise<void> {
+  if (!articles.length || targetLanguageCode === "en") {
+    return;
+  }
+
+  const subset = articles.slice(0, Math.max(1, maxArticles));
+  await translateNewsArticles(subset, targetLanguageCode);
+}

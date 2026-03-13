@@ -7,7 +7,7 @@ import { Onboarding } from '@/app/components/Onboarding';
 import { mockNewsData } from '@/app/data/newsData';
 import type { NewsArticle } from '@/app/types/news';
 import { NEWS_API } from '@/apiConfig.js';
-import { getLanguageCode, translateNewsArticles } from '@/services/libreTranslate';
+import { getLanguageCode, translateNewsArticles, warmTranslationCache } from '@/services/libreTranslate';
 
 interface ApiNewsItem {
   id: number;
@@ -118,6 +118,29 @@ export function AppWithRouting() {
     return () => {
       isCancelled = true;
     };
+  }, [newsData, selectedLanguage]);
+
+  useEffect(() => {
+    const languageCode = getLanguageCode(selectedLanguage);
+    if (languageCode === 'en' || !newsData.length) {
+      return;
+    }
+
+    const scheduleWarmup =
+      typeof window !== 'undefined' && 'requestIdleCallback' in window
+        ? (cb: () => void) => (window as Window & { requestIdleCallback: (fn: () => void) => number }).requestIdleCallback(cb)
+        : (cb: () => void) => window.setTimeout(cb, 400);
+
+    const cancelWarmup =
+      typeof window !== 'undefined' && 'cancelIdleCallback' in window
+        ? (id: number) => (window as Window & { cancelIdleCallback: (value: number) => void }).cancelIdleCallback(id)
+        : (id: number) => window.clearTimeout(id);
+
+    const handle = scheduleWarmup(() => {
+      void warmTranslationCache(newsData, languageCode, 8);
+    });
+
+    return () => cancelWarmup(handle);
   }, [newsData, selectedLanguage]);
 
   // Redirect to login if not authenticated
