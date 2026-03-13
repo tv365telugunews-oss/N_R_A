@@ -29,7 +29,3 @@ jobs:
 
       - name: Verify deployed API endpoints
         run: npm run verify:deploy
-
-      - name: Verify /api/news compatibility route
-        run: |
-          node -e "(async () => { const res = await fetch('https://news-robo-api.onrender.com/api/news?limit=1&page=1'); if (!res.ok) throw new Error('status ' + res.status); const body = await res.json(); if (!Array.isArray(body.data)) throw new Error('Missing data[]'); console.log('API alias check PASS'); })().catch((e) => { console.error(e.message); process.exit(1); });"

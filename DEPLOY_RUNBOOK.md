@@ -75,6 +75,8 @@ API only:
 
 npm run verify:deploy
 
+This checks both `/news` and `/api/news`.
+
 API + frontend:
 
 npm run verify:deploy -- --frontend-url https://your-app.vercel.app

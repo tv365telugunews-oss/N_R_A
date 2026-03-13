@@ -76,6 +76,15 @@ function fail(message) {
   }
   console.log(`OK /news (${news.status}) count=${news.body.pagination?.total ?? "n/a"}`);
 
+  const aliasNews = await requestJson(`${apiBaseUrl}/api/news?limit=1&page=1`);
+  if (!aliasNews.ok) {
+    fail(`/api/news check failed (status ${aliasNews.status})`);
+  }
+  if (!aliasNews.body || !Array.isArray(aliasNews.body.data)) {
+    fail(`/api/news response missing data[]`);
+  }
+  console.log(`OK /api/news (${aliasNews.status}) count=${aliasNews.body.pagination?.total ?? "n/a"}`);
+
   if (frontendUrl) {
     const frontend = await requestHeadOrGet(frontendUrl);
     if (!frontend.ok) {
