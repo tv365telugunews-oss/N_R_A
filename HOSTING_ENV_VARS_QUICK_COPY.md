@@ -17,6 +17,16 @@ DATABASE_URL=<your_render_postgres_connection_string>
 - Frontend should only expose VITE_ variables.
 - Keep secret keys only in backend environment settings.
 
+## Verify Deployment
+
+Run this command from the project root:
+
+npm run verify:deploy
+
+Optional frontend check:
+
+FRONTEND_URL=<your_frontend_url> npm run verify:deploy
+
 ## Optional Cold-Start Mitigation
 
 For free-tier backend services, configure an external ping every 5 minutes:

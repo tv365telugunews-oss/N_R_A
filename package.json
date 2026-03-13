@@ -13,6 +13,7 @@
     "preview": "vite preview",
     "db:check": "node scripts/check-db-credentials.cjs",
     "smoke:api": "node scripts/smoke-api.cjs",
+    "verify:deploy": "node scripts/verify-deploy.cjs",
     "verify": "node verify-setup.js",
     "verify:workflow": "node verify-workflow.js",
     "emergency-fix": "node emergency-fix.cjs",
