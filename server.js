@@ -420,6 +420,27 @@ app.delete("/news/:id", async (req, res) => {
   }
 });
 
+function redirectToNewsPath(req, res, targetPath) {
+  const queryString = new URLSearchParams(req.query || {}).toString();
+  const destination = queryString ? `${targetPath}?${queryString}` : targetPath;
+  return res.redirect(307, destination);
+}
+
+// API prefix compatibility aliases (e.g. /api/news -> /news)
+app.get("/api", (req, res) => {
+  return res.json({
+    ok: true,
+    message: "NEWS ROBO API",
+    routes: ["/news", "/health", "/health/db"],
+  });
+});
+
+app.get("/api/news", (req, res) => redirectToNewsPath(req, res, "/news"));
+app.get("/api/news/:id", (req, res) => redirectToNewsPath(req, res, `/news/${req.params.id}`));
+app.post("/api/news", (req, res) => redirectToNewsPath(req, res, "/news"));
+app.put("/api/news/:id", (req, res) => redirectToNewsPath(req, res, `/news/${req.params.id}`));
+app.delete("/api/news/:id", (req, res) => redirectToNewsPath(req, res, `/news/${req.params.id}`));
+
 // Health check endpoint
 app.get("/health/db", async (req, res) => {
   try {
