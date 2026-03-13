@@ -67,6 +67,8 @@ npm run build
 
 ## 🚀 Deployment
 
+For the current end-to-end deployment workflow, see [DEPLOY_RUNBOOK.md](./DEPLOY_RUNBOOK.md).
+
 ### Frontend API Connection (Render)
 
 Set the frontend API base URL using Vite environment variables.
@@ -75,10 +77,10 @@ Set the frontend API base URL using Vite environment variables.
 2. Use this value:
 
 ```env
-VITE_API_BASE_URL=https://news-robo-api.onrender.com
+VITE_API_URL=https://news-robo-api.onrender.com
 ```
 
-The frontend reads `VITE_API_BASE_URL` and falls back to `https://news-robo-api.onrender.com`.
+The frontend reads `VITE_API_URL` and also supports `VITE_API_BASE_URL`.
 
 If requests fail on Render:
 
