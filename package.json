@@ -12,6 +12,7 @@
     "start": "node server.js",
     "preview": "vite preview",
     "db:check": "node scripts/check-db-credentials.cjs",
+    "check:frontend": "node scripts/check-frontend-urls.cjs",
     "smoke:api": "node scripts/smoke-api.cjs",
     "verify:deploy": "node scripts/verify-deploy.cjs",
     "verify": "node verify-setup.js",

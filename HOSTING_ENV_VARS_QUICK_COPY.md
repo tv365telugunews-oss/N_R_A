@@ -27,6 +27,14 @@ Optional frontend check:
 
 FRONTEND_URL=<your_frontend_url> npm run verify:deploy
 
+Find a live frontend URL from known candidates:
+
+npm run check:frontend
+
+Use custom candidates:
+
+FRONTEND_URLS=https://a.example.com,https://b.example.com npm run check:frontend
+
 ## Optional Cold-Start Mitigation
 
 For free-tier backend services, configure an external ping every 5 minutes:
