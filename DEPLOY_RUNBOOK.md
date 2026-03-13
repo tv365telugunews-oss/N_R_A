@@ -37,6 +37,10 @@ Compatibility variable also supported:
 
 VITE_API_BASE_URL=https://news-robo-api.onrender.com
 
+Optional translation API endpoint:
+
+VITE_TRANSLATE_API_URL=https://libretranslate.de/translate
+
 Frontend code pattern:
 
 fetch(`${import.meta.env.VITE_API_URL}/news`)
@@ -108,6 +112,12 @@ Slow first request:
 - Free Render services can cold start.
 - Optional ping every 5 minutes:
   - https://news-robo-api.onrender.com/health
+
+Translation notes:
+
+- LibreTranslate is integrated in the frontend news feed.
+- News title/content are translated from English and cached in localStorage.
+- Supported target examples: en, es, fr, hi, te, de, ar.
 
 ## Final architecture
 

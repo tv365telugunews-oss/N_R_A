@@ -7,6 +7,7 @@ import { Onboarding } from '@/app/components/Onboarding';
 import { mockNewsData } from '@/app/data/newsData';
 import type { NewsArticle } from '@/app/types/news';
 import { NEWS_API } from '@/apiConfig.js';
+import { getLanguageCode, translateNewsArticles } from '@/services/libreTranslate';
 
 interface ApiNewsItem {
   id: number;
@@ -43,6 +44,7 @@ export function AppWithRouting() {
     return localStorage.getItem('newsrobo_location') || 'Hyderabad, Telangana';
   });
   const [newsData, setNewsData] = useState<NewsArticle[]>(mockNewsData);
+  const [displayNewsData, setDisplayNewsData] = useState<NewsArticle[]>(mockNewsData);
   const touchStartY = useRef<number>(0);
   const touchEndY = useRef<number>(0);
   const menuTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -79,14 +81,44 @@ export function AppWithRouting() {
 
         if (mappedNews.length > 0) {
           setNewsData(mappedNews);
+          setDisplayNewsData(mappedNews);
         }
       } catch {
         setNewsData(mockNewsData);
+        setDisplayNewsData(mockNewsData);
       }
     };
 
     loadNews();
   }, []);
+
+  useEffect(() => {
+    let isCancelled = false;
+
+    const applyTranslations = async () => {
+      const languageCode = getLanguageCode(selectedLanguage);
+      if (languageCode === 'en') {
+        setDisplayNewsData(newsData);
+        return;
+      }
+
+      const translated = await translateNewsArticles(newsData, languageCode);
+      if (!isCancelled) {
+        setDisplayNewsData(
+          translated.map((article) => ({
+            ...article,
+            language: selectedLanguage,
+          }))
+        );
+      }
+    };
+
+    applyTranslations();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [newsData, selectedLanguage]);
 
   // Redirect to login if not authenticated
   useEffect(() => {
@@ -97,8 +129,8 @@ export function AppWithRouting() {
 
   // Filter news based on selected category
   const filteredNews = selectedCategory === 'All News' 
-    ? newsData 
-    : newsData.filter(news => news.category === selectedCategory);
+    ? displayNewsData 
+    : displayNewsData.filter(news => news.category === selectedCategory);
 
   const currentNews = filteredNews[currentIndex];
 
