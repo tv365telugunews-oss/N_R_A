@@ -83,6 +83,10 @@ Find a live frontend URL from known candidates:
 
 npm run check:frontend
 
+CI automation:
+
+- GitHub Actions workflow `.github/workflows/api-verify.yml` runs API verification on pushes to `main` and on manual dispatch.
+
 ## 7) Troubleshooting
 
 Cannot GET /api/news:
