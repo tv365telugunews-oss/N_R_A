@@ -61,3 +61,16 @@ https://news-robo-api.onrender.com/health
 Tools:
 - UptimeRobot
 - Cron-job.org
+
+## Vercel Quick Deploy
+
+1. Go to https://vercel.com and sign in with GitHub.
+2. Click New Project and import this repository.
+3. Set environment variable in Vercel project settings:
+
+VITE_API_URL=https://news-robo-api.onrender.com
+
+4. Deploy.
+5. After deployment, run verification with your live frontend URL:
+
+npm run verify:deploy -- --frontend-url https://your-app.vercel.app
